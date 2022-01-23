@@ -14,7 +14,7 @@ mixin AppFonts {
 mixin AppTextFields {
   static InputDecoration minimalTextFieldDecoration = InputDecoration(
     focusColor: Colors.black,
-    hintText: 'Enter a value',
+    hintText: 'Enter a value', 
     focusedBorder: UnderlineInputBorder(
       borderSide: BorderSide(
         color: AppColors.primayColor,

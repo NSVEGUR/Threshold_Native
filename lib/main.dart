@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'constants.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'paths.dart';
-import 'screens/users.screen.dart';
+import 'routes/routes.dart';
+import 'home/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +11,7 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
+  // This widget is the root of application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,15 +19,11 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: AppColors.primayColor,
-          // textTheme: GoogleFonts.latoTextTheme(
-          //   Theme.of(context).textTheme,
-          // ),
           textTheme: GoogleFonts.latoTextTheme(
             Theme.of(context).textTheme,
           ),
         ),
-        // home: const LoginScreenOne(),
-        initialRoute: UsersSelect.id,
+        initialRoute: Home.routeName,
         onGenerateRoute: (route) => generateAppRoute(route));
   }
 }

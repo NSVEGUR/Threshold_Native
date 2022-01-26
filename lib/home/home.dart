@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:threshold_native/screens/login.screens/login.screen.1.dart';
 import 'package:velocity_x/velocity_x.dart';
-import '../components/logo.component.dart';
-import '../constants.dart';
+import 'package:threshold_native/components/logo.dart';
+import 'package:threshold_native/constants.dart';
+import 'package:authentication_repository/authentication_repository.dart';
+import 'package:threshold_native/login/login.dart';
 
-class UsersSelect extends StatefulWidget {
-  static const String id = 'users.screen';
-  const UsersSelect({Key? key}) : super(key: key);
+class Home extends StatefulWidget {
+  static const String routeName = '/home';
+  const Home({Key? key}) : super(key: key);
 
   @override
-  _UsersSelectState createState() => _UsersSelectState();
+  _HomeState createState() => _HomeState();
 }
 
-class _UsersSelectState extends State<UsersSelect> {
-  var selected = 1;
-
+class _HomeState extends State<Home> {
+  Roles role = Roles.student;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,42 +45,48 @@ class _UsersSelectState extends State<UsersSelect> {
                     .make(),
                 TextButton.icon(
                   style: TextButton.styleFrom(
-                    primary: selected == 1
+                    primary: role == Roles.student
                         ? AppColors.primaryTextColor
                         : AppColors.secondaryTextColor,
                   ),
                   onPressed: () => {
-                    setState(() => {selected = 1})
+                    setState(() => {
+                          role = Roles.student,
+                        })
                   },
-                  icon: selected == 1
+                  icon: role == Roles.student
                       ? const Icon(Icons.arrow_forward_ios)
                       : Container(),
                   label: "Student".text.xl2.make(),
                 ),
                 TextButton.icon(
                   style: TextButton.styleFrom(
-                    primary: selected == 2
+                    primary: role == Roles.teacher
                         ? AppColors.primaryTextColor
                         : AppColors.secondaryTextColor,
                   ),
                   onPressed: () => {
-                    setState(() => {selected = 2})
+                    setState(() => {
+                          role = Roles.teacher,
+                        })
                   },
-                  icon: selected == 2
+                  icon: role == Roles.teacher
                       ? const Icon(Icons.arrow_forward_ios)
                       : Container(),
                   label: "Teacher".text.xl2.make(),
                 ),
                 TextButton.icon(
                   style: TextButton.styleFrom(
-                    primary: selected == 3
+                    primary: role == Roles.admin
                         ? AppColors.primaryTextColor
                         : AppColors.secondaryTextColor,
                   ),
                   onPressed: () => {
-                    setState(() => {selected = 3})
+                    setState(() => {
+                          role = Roles.admin,
+                        })
                   },
-                  icon: selected == 3
+                  icon: role == Roles.admin
                       ? const Icon(Icons.arrow_forward_ios)
                       : Container(),
                   label: "Admin".text.xl2.make(),
@@ -104,7 +110,11 @@ class _UsersSelectState extends State<UsersSelect> {
                 primary: AppColors.primayColor,
               ),
               onPressed: () => {
-                Navigator.pushNamed(context, LoginScreenOne.id),
+                Navigator.pushNamed(
+                  context,
+                  Login.routeName,
+                  arguments: role,
+                ),
               },
               child: "Continue".text.xl2.make().p8(),
             ).positioned(

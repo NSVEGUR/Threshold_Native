@@ -7,6 +7,14 @@ abstract class SignupEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class SignupSetRole extends SignupEvent {
+  const SignupSetRole(this.role);
+  final Roles role;
+
+  @override
+  List<Object> get props => [role];
+}
+
 class SignupUserNameChanged extends SignupEvent {
   const SignupUserNameChanged(this.username);
 

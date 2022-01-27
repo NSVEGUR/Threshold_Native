@@ -14,13 +14,24 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     required AuthenticationRepository authenticationRepository,
   })  : _authenticationRepository = authenticationRepository,
         super(const SignupState()) {
+    on<SignupSetRole>(_setSignupRole);
     on<SignupUserNameChanged>(_onUsernameChanged);
     on<SignupPasswordChanged>(_onPasswordChanged);
     on<SignupPasswordConfirmChanged>(_onPasswordConfirmChanged);
     on<SignupMobileChanged>(_onMobileChanged);
     on<SignupMobileConfirmChanged>(_onMobileConfirmChanged);
+    on<SignupSubmitted>(_onSubmitted);
   }
   final AuthenticationRepository _authenticationRepository;
+
+  void _setSignupRole(
+    SignupSetRole event,
+    Emitter<SignupState> emit,
+  ) {
+    emit(state.copyWith(
+      role: event.role,
+    ));
+  }
 
   void _onUsernameChanged(
     SignupUserNameChanged event,
@@ -30,9 +41,9 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
 
     if (username.value.length >= 5) {
       try {
-        // await _authenticationRepository.checkUserExistance(
-        //   userName: username.value,
-        // );
+        await _authenticationRepository.checkUserExistance(
+          userName: username.value,
+        );
         emit(state.copyWith(
           username: username,
           userError: '',
@@ -99,7 +110,7 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
         <FormzInput>[
           passwordConfirm,
           state.password,
-          state.passwordConfirm,
+          state.username,
         ],
       ),
     ));
@@ -139,5 +150,37 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
         ],
       ),
     ));
+  }
+
+  Future<void> _onSubmitted(
+    SignupSubmitted event,
+    Emitter<SignupState> emit,
+  ) async {
+    if (state.status.isValidated) {
+      emit(state.copyWith(status: FormzStatus.submissionInProgress));
+      try {
+        await _authenticationRepository.signup(
+          userName: state.username.value,
+          password: state.password.value,
+          mobile: state.mobile.value,
+          role: state.role,
+        );
+        emit(state.copyWith(status: FormzStatus.submissionSuccess));
+      } on AuthFailure catch (e) {
+        emit(
+          state.copyWith(
+            signupError: e.message,
+            status: FormzStatus.submissionFailure,
+          ),
+        );
+      } catch (_) {
+        emit(
+          state.copyWith(
+            signupError: 'Unknown Error Occured',
+            status: FormzStatus.submissionFailure,
+          ),
+        );
+      }
+    }
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
 import 'package:threshold_native/components/back_button.dart';
 import 'package:threshold_native/constants.dart';
+import 'package:threshold_native/dashboard/dashboard.dart';
 import 'package:threshold_native/signup/bloc/signup_bloc.dart';
 import 'package:threshold_native/types/auth_type.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -12,10 +14,94 @@ class SignupForm extends StatelessWidget {
       : _authType = authType,
         super(key: key);
 
+  void retrieveDataToState(BuildContext context) {
+    context.read<SignupBloc>().add(
+          SignupSetRole(
+            _authType.role,
+          ),
+        );
+    context.read<SignupBloc>().add(
+          SignupUserNameChanged(
+            _authType.username,
+          ),
+        );
+    context.read<SignupBloc>().add(
+          SignupPasswordChanged(
+            _authType.password,
+          ),
+        );
+    context.read<SignupBloc>().add(
+          SignupPasswordConfirmChanged(
+            _authType.password,
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
+    retrieveDataToState(context);
     return BlocListener<SignupBloc, SignupState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state.status.isSubmissionFailure) {
+            final String errorMessage = state.signupError;
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(errorMessage),
+                      Icon(
+                        Icons.error,
+                        color: Colors.red.shade700,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+          }
+          if (state.status.isSubmissionInProgress) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const <Widget>[
+                      Text('Creating Account...'),
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    ],
+                  ),
+                ),
+              );
+          }
+          if (state.status.isSubmissionSuccess) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      const Text('Successfully Created Account'),
+                      Icon(
+                        Icons.task_alt,
+                        color: Colors.green.shade400,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            _authType.updateToken();
+            Navigator.pushNamed(
+              context,
+              DashBoard.routeName,
+            );
+          }
+        },
         child: Form(
           child: VStack(
             [
@@ -24,9 +110,7 @@ class SignupForm extends StatelessWidget {
               HStack(
                 [
                   backButton(context),
-                  SignupButton(
-                    authType: _authType,
-                  ),
+                  const SignupButton(),
                 ],
               ).pOnly(top: 20),
             ],
@@ -107,36 +191,44 @@ class ConfirmMobileInput extends StatelessWidget {
 }
 
 class SignupButton extends StatelessWidget {
-  final AuthType _authType;
-  const SignupButton({Key? key, required AuthType authType})
-      : _authType = authType,
-        super(key: key);
+  const SignupButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SignupBloc, SignupState>(
       builder: (context, state) {
-        return IconButton(
-          onPressed: () {
-            // ignore: unused_local_variable
-            final AuthType arguments = _authType.copyWith(
-              username: state.username.value,
-              password: state.password.value,
-              authenticationRepository: _authType.authenticationRepository,
-            );
+        return InkWell(
+          onTap: () {
+            if (state.status.isValid) {
+              context.read<SignupBloc>().add(
+                    const SignupSubmitted(),
+                  );
+            } else {
+              context.read<SignupBloc>().add(
+                    SignupMobileChanged(
+                      state.mobile.value,
+                    ),
+                  );
+              context.read<SignupBloc>().add(
+                    SignupMobileConfirmChanged(
+                      state.mobileConfirm.value,
+                    ),
+                  );
+            }
           },
-          icon: const Icon(
+          child: const Icon(
             Icons.east_rounded,
             color: Colors.white,
-          ),
-        )
-            .px20()
-            .box
-            .color(
-              AppColors.primayColor,
-            )
-            .withRounded(value: 5)
-            .make();
+          )
+              .py12()
+              .px20()
+              .box
+              .color(
+                AppColors.primayColor,
+              )
+              .withRounded(value: 5)
+              .make(),
+        );
       },
     );
   }

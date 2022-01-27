@@ -6,6 +6,7 @@ import 'package:threshold_native/signup/bloc/signup_bloc.dart';
 import 'package:threshold_native/signup/views/signup_screen.dart';
 import 'package:threshold_native/types/auth_type.dart';
 import 'package:velocity_x/velocity_x.dart';
+import 'package:formz/formz.dart';
 
 class RegisterForm extends StatelessWidget {
   final AuthType _authType;
@@ -155,35 +156,54 @@ class RegisterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SignupBloc, SignupState>(
       builder: (context, state) {
-        return IconButton(
-          onPressed: () {
-            final AuthType arguments = _authType.copyWith(
-              username: state.username.value,
-              password: state.password.value,
-              authenticationRepository: _authType.authenticationRepository,
-            );
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SignupScreen(),
-                settings: RouteSettings(
-                  arguments: arguments,
+        return InkWell(
+          onTap: () {
+            if (state.status.isValid) {
+              final AuthType arguments = _authType.copyWith(
+                username: state.username.value,
+                password: state.password.value,
+                authenticationRepository: _authType.authenticationRepository,
+              );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SignupScreen(),
+                  settings: RouteSettings(
+                    arguments: arguments,
+                  ),
                 ),
-              ),
-            );
+              );
+            } else {
+              context.read<SignupBloc>().add(
+                    SignupUserNameChanged(
+                      state.username.value,
+                    ),
+                  );
+              context.read<SignupBloc>().add(
+                    SignupPasswordChanged(
+                      state.password.value,
+                    ),
+                  );
+              context.read<SignupBloc>().add(
+                    SignupPasswordConfirmChanged(
+                      state.passwordConfirm.value,
+                    ),
+                  );
+            }
           },
-          icon: const Icon(
+          child: const Icon(
             Icons.east_rounded,
             color: Colors.white,
-          ),
-        )
-            .px20()
-            .box
-            .color(
-              AppColors.primayColor,
-            )
-            .withRounded(value: 5)
-            .make();
+          )
+              .py12()
+              .px20()
+              .box
+              .color(
+                AppColors.primayColor,
+              )
+              .withRounded(value: 5)
+              .make(),
+        );
       },
     );
   }

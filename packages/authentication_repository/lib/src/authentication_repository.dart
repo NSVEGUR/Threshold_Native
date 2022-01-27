@@ -3,6 +3,7 @@ library auth;
 // ignore_for_file: prefer_final_fields, unused_field
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:authentication_repository/src/models/roles.dart';
 
 // To throw exceptions if got any errors in auth
@@ -29,7 +30,11 @@ class AuthenticationRepository {
   // Getters for userName and role
   String get userName => _userName;
   String get role => getRoleFromEnum(_role);
-  String get token => _token;
+  Future<String> get token async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    final String token = _prefs.getString('token') ?? _token;
+    return token;
+  }
 
   AuthenticationRepository({
     String? userName,
@@ -65,6 +70,8 @@ class AuthenticationRepository {
     if (response.statusCode >= 200 && response.statusCode <= 299) {
       _saveData(userName: userName, role: role, mobile: mobile);
       final data = jsonDecode(response.body);
+      final token = data['data']['token'];
+      _saveToken(token: token);
       return data['message'];
     } else {
       final error = jsonDecode(response.body);
@@ -95,6 +102,8 @@ class AuthenticationRepository {
     if (response.statusCode >= 200 && response.statusCode <= 299) {
       _saveData(userName: userName, role: role, mobile: mobile);
       final data = jsonDecode(response.body);
+      final token = data['data']['token'];
+      _saveToken(token: token);
       return data['message'];
     } else {
       final error = jsonDecode(response.body);
@@ -157,5 +166,11 @@ class AuthenticationRepository {
     _userName = userName;
     _mobile = mobile;
     _role = role;
+  }
+
+  Future<void> _saveToken({required String token}) async {
+    _token = token;
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.setString('token', token);
   }
 }

@@ -9,6 +9,7 @@ class SignupState extends Equatable {
     this.mobileConfirm = const ConfirmedMobile.pure(),
     this.passwordConfirm = const ConfirmedPassword.pure(),
     this.userError = '',
+    this.signupError = '',
     this.role = Roles.student,
   });
 
@@ -20,16 +21,19 @@ class SignupState extends Equatable {
   final ConfirmedPassword passwordConfirm;
   final Roles role;
   final String userError;
+  final String signupError;
 
-  SignupState copyWith(
-      {FormzStatus? status,
-      Username? username,
-      Password? password,
-      Mobile? mobile,
-      ConfirmedMobile? mobileConfirm,
-      ConfirmedPassword? passwordConfirm,
-      Roles? role,
-      String? userError}) {
+  SignupState copyWith({
+    FormzStatus? status,
+    Username? username,
+    Password? password,
+    Mobile? mobile,
+    ConfirmedMobile? mobileConfirm,
+    ConfirmedPassword? passwordConfirm,
+    Roles? role,
+    String? userError,
+    String? signupError,
+  }) {
     return SignupState(
       status: status ?? this.status,
       username: username ?? this.username,
@@ -39,6 +43,7 @@ class SignupState extends Equatable {
       passwordConfirm: passwordConfirm ?? this.passwordConfirm,
       role: role ?? this.role,
       userError: userError ?? this.userError,
+      signupError: signupError ?? this.signupError,
     );
   }
 
@@ -51,5 +56,6 @@ class SignupState extends Equatable {
         passwordConfirm,
         mobileConfirm,
         userError,
+        signupError,
       ];
 }

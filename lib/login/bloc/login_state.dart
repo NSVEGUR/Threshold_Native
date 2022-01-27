@@ -7,6 +7,7 @@ class LoginState extends Equatable {
     this.password = const Password.pure(),
     this.mobile = const Mobile.pure(),
     this.role = Roles.student,
+    this.errorMessage = '',
   });
 
   final FormzStatus status;
@@ -14,6 +15,7 @@ class LoginState extends Equatable {
   final Password password;
   final Mobile mobile;
   final Roles role;
+  final String errorMessage;
 
   LoginState copyWith({
     FormzStatus? status,
@@ -21,6 +23,7 @@ class LoginState extends Equatable {
     Password? password,
     Mobile? mobile,
     Roles? role,
+    String? errorMessage,
   }) {
     return LoginState(
       status: status ?? this.status,
@@ -28,6 +31,7 @@ class LoginState extends Equatable {
       password: password ?? this.password,
       mobile: mobile ?? this.mobile,
       role: role ?? this.role,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
@@ -37,5 +41,6 @@ class LoginState extends Equatable {
         username,
         password,
         mobile,
+        errorMessage,
       ];
 }

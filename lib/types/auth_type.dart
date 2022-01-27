@@ -6,13 +6,15 @@ class AuthType {
   final String username;
   final String password;
   final String mobile;
+  String token;
 
-  const AuthType({
+  AuthType({
     this.role = Roles.student,
     required this.authenticationRepository,
     this.username = '',
     this.password = '',
     this.mobile = '',
+    this.token = '',
   });
 
   AuthType copyWith({
@@ -29,5 +31,9 @@ class AuthType {
       mobile: mobile ?? this.mobile,
       authenticationRepository: authenticationRepository,
     );
+  }
+
+  Future<void> updateToken() async {
+    token = await authenticationRepository.token;
   }
 }

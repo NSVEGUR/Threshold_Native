@@ -41,7 +41,12 @@ class LoginScreen extends StatelessWidget {
                   .color(AppColors.secondaryTextColor)
                   .make()
                   .pOnly(left: 50),
-              const LoginForm(),
+              LoginForm(
+                authtype: AuthType(
+                  role: roles,
+                  authenticationRepository: _authenticationRepository,
+                ),
+              ),
               HStack(
                 [
                   GestureDetector(

@@ -12,6 +12,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     required AuthenticationRepository authenticationRepository,
   })  : _authenticationRepository = authenticationRepository,
         super(const LoginState()) {
+    on<LoginSetRole>(_setLoginRole);
     on<LoginUsernameChanged>(_onUsernameChanged);
     on<LoginPasswordChanged>(_onPasswordChanged);
     on<LoginMobileChanged>(_onMobileChanged);
@@ -20,6 +21,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   final AuthenticationRepository _authenticationRepository;
 
+  void _setLoginRole(
+    LoginSetRole event,
+    Emitter<LoginState> emit,
+  ) {
+    emit(state.copyWith(
+      role: event.role,
+    ));
+  }
+
   void _onUsernameChanged(
     LoginUsernameChanged event,
     Emitter<LoginState> emit,
@@ -27,8 +37,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     final username = Username.dirty(event.username);
     emit(state.copyWith(
       username: username,
-      status:
-          Formz.validate(<FormzInput>[username, state.password, state.mobile]),
+      status: Formz.validate(<FormzInput>[
+        username,
+        state.password,
+        state.mobile,
+      ]),
     ));
   }
 
@@ -39,8 +52,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     final password = Password.dirty(event.password);
     emit(state.copyWith(
       password: password,
-      status:
-          Formz.validate(<FormzInput>[password, state.username, state.mobile]),
+      status: Formz.validate(<FormzInput>[
+        password,
+        state.username,
+        state.mobile,
+      ]),
     ));
   }
 
@@ -51,8 +67,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     final mobile = Mobile.dirty(event.mobile);
     emit(state.copyWith(
       mobile: mobile,
-      status:
-          Formz.validate(<FormzInput>[mobile, state.username, state.password]),
+      status: Formz.validate(<FormzInput>[
+        mobile,
+        state.username,
+        state.password,
+      ]),
     ));
   }
 
@@ -70,8 +89,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           role: state.role,
         );
         emit(state.copyWith(status: FormzStatus.submissionSuccess));
+      } on AuthFailure catch (e) {
+        emit(
+          state.copyWith(
+            errorMessage: e.message,
+            status: FormzStatus.submissionFailure,
+          ),
+        );
       } catch (_) {
-        emit(state.copyWith(status: FormzStatus.submissionFailure));
+        emit(
+          state.copyWith(
+            errorMessage: 'Unknown Error Occured',
+            status: FormzStatus.submissionFailure,
+          ),
+        );
       }
     }
   }
